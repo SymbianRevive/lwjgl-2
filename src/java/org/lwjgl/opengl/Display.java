@@ -152,16 +152,17 @@ public final class Display {
 	}
 
 	private static DisplayImplementation createDisplayImplementation() {
-		switch ( LWJGLUtil.getPlatform() ) {
-			case LWJGLUtil.PLATFORM_LINUX:
-				return new LinuxDisplay();
-			case LWJGLUtil.PLATFORM_WINDOWS:
-				return new WindowsDisplay();
-			case LWJGLUtil.PLATFORM_MACOSX:
-				return new MacOSXDisplay();
-			default:
-				throw new IllegalStateException("Unsupported platform");
-		}
+		return new SDLDisplay();
+		// switch ( LWJGLUtil.getPlatform() ) {
+		// 	case LWJGLUtil.PLATFORM_LINUX:
+		// 		return new LinuxDisplay();
+		// 	case LWJGLUtil.PLATFORM_WINDOWS:
+		// 		return new WindowsDisplay();
+		// 	case LWJGLUtil.PLATFORM_MACOSX:
+		// 		return new MacOSXDisplay();
+		// 	default:
+		// 		throw new IllegalStateException("Unsupported platform");
+		// }
 	}
 
 	/** Only constructed by ourselves */

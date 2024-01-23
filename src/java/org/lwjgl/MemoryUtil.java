@@ -250,6 +250,9 @@ public final class MemoryUtil {
 	 * @see CharsetEncoder#encode(java.nio.CharBuffer)
 	 */
 	private static ByteBuffer encode(final CharBuffer in, final Charset charset) {
+		throw new RuntimeException("encodeImpl");
+
+		/*
 		final CharsetEncoder encoder = charset.newEncoder(); // encoders are not thread-safe, create a new one on every call
 
 		int n = (int)(in.remaining() * encoder.averageBytesPerChar());
@@ -284,6 +287,7 @@ public final class MemoryUtil {
 		}
 		out.flip();
 		return out;
+		*/
 	}
 
 	public static String decodeASCII(final ByteBuffer buffer) {
@@ -306,6 +310,9 @@ public final class MemoryUtil {
 	}
 
 	private static String decodeImpl(final ByteBuffer in, final Charset charset) {
+		throw new RuntimeException("decodeImpl");
+
+		/*
 		final CharsetDecoder decoder = charset.newDecoder(); // decoders are not thread-safe, create a new one on every call
 
 		int n = (int)(in.remaining() * decoder.averageCharsPerByte());
@@ -338,6 +345,7 @@ public final class MemoryUtil {
 		}
 		out.flip();
 		return out.toString();
+		*/
 	}
 
 	/** A null-terminated CharSequence. */

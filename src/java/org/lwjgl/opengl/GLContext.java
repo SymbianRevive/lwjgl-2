@@ -40,7 +40,6 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -178,11 +177,7 @@ public final class GLContext {
 	 * with a name dependent on the current platform
 	 */
 	static long getPlatformSpecificFunctionAddress(String function_prefix, String[] os_prefixes, String[] os_function_prefixes, String function) {
-		String os_name = AccessController.doPrivileged(new PrivilegedAction<String>() {
-			public String run() {
-				return System.getProperty("os.name");
-			}
-		});
+		String os_name =  System.getProperty("os.name");
 		for ( int i = 0; i < os_prefixes.length; i++ )
 			if ( os_name.startsWith(os_prefixes[i]) ) {
 				String platform_function_name = function.replaceFirst(function_prefix, os_function_prefixes[i]);
@@ -301,13 +296,8 @@ public final class GLContext {
 		resetNativeStubs(extension_class);
 		if ( supported_extensions.contains(ext_name) ) {
 			try {
-				AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-					public Object run() throws Exception {
-						Method init_stubs_method = extension_class.getDeclaredMethod("initNativeStubs");
-						init_stubs_method.invoke(null);
-						return null;
-					}
-				});
+				Method init_stubs_method = extension_class.getDeclaredMethod("initNativeStubs");
+				init_stubs_method.invoke(null);
 			} catch (Exception e) {
 				LWJGLUtil.log("Failed to initialize extension " + extension_class + " - exception: " + e);
 				supported_extensions.remove(ext_name);

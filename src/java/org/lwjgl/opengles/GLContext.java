@@ -38,8 +38,6 @@ import org.lwjgl.Sys;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -213,14 +211,9 @@ public final class GLContext {
 
 	static void doInitNativeStubs(final Class<?> extension_class) throws LWJGLException {
 		try {
-			AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-				public Object run() throws Exception {
-					Method init_stubs_method = extension_class.getDeclaredMethod("initNativeStubs");
-					init_stubs_method.invoke(null);
-					return null;
-				}
-			});
-		} catch (PrivilegedActionException e) {
+			Method init_stubs_method = extension_class.getDeclaredMethod("initNativeStubs");
+			init_stubs_method.invoke(null);
+		} catch (Exception e) {
 			final Throwable c = e.getCause();
 			if ( c instanceof InvocationTargetException )
 				throw new LWJGLException(c.getCause());

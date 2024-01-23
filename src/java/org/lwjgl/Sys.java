@@ -37,7 +37,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
 
 import org.lwjgl.input.Mouse;
 
@@ -77,6 +76,8 @@ public final class Sys {
 	}
 
 	private static void loadLibrary(final String lib_name) {
+		// NOTABUG: Do nothing, we're in the BCP :zany_face:
+		/*
 		// actively try to load 64bit libs on 64bit architectures first
 		String osArch = System.getProperty("os.arch");
 		boolean try64First = LWJGLUtil.getPlatform() != LWJGLUtil.PLATFORM_MACOSX && ("amd64".equals(osArch) || "x86_64".equals(osArch));
@@ -110,6 +111,7 @@ public final class Sys {
 			// Throw original error
 			throw e;
 		}
+		*/
 	}
 
 	static {
@@ -126,16 +128,17 @@ public final class Sys {
 	}
 
 	private static SysImplementation createImplementation() {
-		switch (LWJGLUtil.getPlatform()) {
-			case LWJGLUtil.PLATFORM_LINUX:
-				return new LinuxSysImplementation();
-			case LWJGLUtil.PLATFORM_WINDOWS:
-				return new WindowsSysImplementation();
-			case LWJGLUtil.PLATFORM_MACOSX:
-				return new MacOSXSysImplementation();
-			default:
-				throw new IllegalStateException("Unsupported platform");
-		}
+    return new GenericSysImplementation();
+		// switch (LWJGLUtil.getPlatform()) {
+		// 	case LWJGLUtil.PLATFORM_LINUX:
+		// 		return new LinuxSysImplementation();
+		// 	case LWJGLUtil.PLATFORM_WINDOWS:
+		// 		return new WindowsSysImplementation();
+		// 	case LWJGLUtil.PLATFORM_MACOSX:
+		// 		return new MacOSXSysImplementation();
+		// 	default:
+		// 		throw new IllegalStateException("Unsupported platform");
+		// }
 	}
 
 	/**
@@ -230,32 +233,7 @@ public final class Sys {
 	 * @return false if we are CERTAIN the call has failed
 	 */
 	public static boolean openURL(String url) {
-		// Attempt to use Webstart if we have it available
-		try {
-			// Lookup the javax.jnlp.BasicService object
-			final Class<?> serviceManagerClass = Class.forName("javax.jnlp.ServiceManager");
-			Method lookupMethod = AccessController.doPrivileged(new PrivilegedExceptionAction<Method>() {
-				public Method run() throws Exception {
-					return serviceManagerClass.getMethod("lookup", String.class);
-				}
-			});
-			Object basicService = lookupMethod.invoke(serviceManagerClass, new Object[] {"javax.jnlp.BasicService"});
-			final Class<?> basicServiceClass = Class.forName("javax.jnlp.BasicService");
-			Method showDocumentMethod = AccessController.doPrivileged(new PrivilegedExceptionAction<Method>() {
-				public Method run() throws Exception {
-					return basicServiceClass.getMethod("showDocument", URL.class);
-				}
-			});
-			try {
-				Boolean ret = (Boolean)showDocumentMethod.invoke(basicService, new URL(url));
-				return ret;
-			} catch (MalformedURLException e) {
-				e.printStackTrace(System.err);
-				return false;
-			}
-		} catch (Exception ue) {
-			return implementation.openURL(url);
-		}
+		return implementation.openURL(url);
 	}
 
 	/**

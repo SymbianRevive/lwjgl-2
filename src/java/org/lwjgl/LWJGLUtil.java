@@ -38,8 +38,6 @@ import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.*;
 
 /**
@@ -400,19 +398,11 @@ public class LWJGLUtil {
 	}
 
 	static void execPrivileged(final String[] cmd_array) throws Exception {
-		try {
-			Process process = AccessController.doPrivileged(new PrivilegedExceptionAction<Process>() {
-				public Process run() throws Exception {
-					return Runtime.getRuntime().exec(cmd_array);
-				}
-			});
-			// Close unused streams to make sure the child process won't hang
-			process.getInputStream().close();
-			process.getOutputStream().close();
-			process.getErrorStream().close();
-		} catch (PrivilegedActionException e) {
-			throw (Exception)e.getCause();
-		}
+		Process process =  Runtime.getRuntime().exec(cmd_array);
+		// Close unused streams to make sure the child process won't hang
+		process.getInputStream().close();
+		process.getOutputStream().close();
+		process.getErrorStream().close();
 	}
 
 	private static String getPrivilegedProperty(final String property_name) {
@@ -443,15 +433,11 @@ public class LWJGLUtil {
 			while (c != null) {
 				final Class<?> clazz = c;
 				try {
-					return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
-						public String run() throws Exception {
-							Method findLibrary = clazz.getDeclaredMethod("findLibrary", String.class);
-							findLibrary.setAccessible(true);
-							String path = (String)findLibrary.invoke(classloader, libname);
-							return path;
-						}
-					});
-				} catch (PrivilegedActionException e) {
+					Method findLibrary = clazz.getDeclaredMethod("findLibrary", String.class);
+					findLibrary.setAccessible(true);
+					String path = (String)findLibrary.invoke(classloader, libname);
+					return path;
+				} catch (Exception e) {
 					log("Failed to locate findLibrary method: " + e.getCause());
 					c = c.getSuperclass();
 				}
